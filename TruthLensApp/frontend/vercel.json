@@ -4,7 +4,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://YOUR-BACKEND-URL/api/$1"
+      "destination": "https://truthlens-backend-x3zp.onrender.com/api/$1"
     }
   ]
 }
