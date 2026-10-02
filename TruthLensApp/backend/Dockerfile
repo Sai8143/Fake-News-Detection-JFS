@@ -1,16 +1,19 @@
-FROM python:3.10-slim
-
+# Stage 1: Build JAR with Maven Wrapper
+FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
+COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
+RUN chmod +x mvnw
+COPY src/ src/
+RUN ./mvnw clean package -DskipTests
 
-COPY requirements.txt .
+# Stage 2: Minimal Runtime Environment
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=builder /app/target/truthlens-backend-1.0.0.jar app.jar
 
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+# Support custom port injection (Render/Heroku/HuggingFace set $PORT)
+ENV PORT=8080
+EXPOSE 8080
 
-COPY . .
-
-ENV PORT=7860
-
-EXPOSE 7860
-
-CMD ["python","app.py"]
+ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT} -jar app.jar"]

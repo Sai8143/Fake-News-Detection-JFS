@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TruthLens – AI Fake News Detector & News App (Spring Boot JFS)</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <!-- Navigation Header -->
+  <header>
+    <div class="nav-container">
+      <div class="brand">
+        <h1>🛡️ TruthLens</h1>
+        <span class="badge-tag">Spring Boot 3 JFS</span>
+      </div>
+
+      <nav class="nav-links">
+        <button class="nav-tab-btn active" data-tab="tab-analyze">🔍 Analyze</button>
+        <button class="nav-tab-btn" data-tab="tab-feed">📰 Feed</button>
+        <button class="nav-tab-btn" data-tab="tab-search">🔎 Search</button>
+        <button class="nav-tab-btn" data-tab="tab-history">📋 History</button>
+        <button class="nav-tab-btn" data-tab="tab-profile">👤 Profile</button>
+        <button class="nav-tab-btn" data-tab="tab-system">⚙️ System</button>
+      </nav>
+
+      <div class="status-pill" id="backend-status">
+        <span class="status-dot"></span> Checking backend...
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main>
+
+    <!-- TAB 1: ANALYZE -->
+    <section id="tab-analyze" class="tab-pane active">
+      <div class="grid-2">
+        <div class="card">
+          <h2 style="margin-bottom: 0.5rem;">🔍 Check Credibility</h2>
+          <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">
+            Analyze articles, URLs, or headlines using heuristic trustworthiness algorithms.
+          </p>
+
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-sample-credible">Sample: Credible News</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-sample-fake">Sample: Fake News</button>
+          </div>
+
+          <form id="analyze-form">
+            <div class="form-group">
+              <label for="input-url">Article URL (Optional)</label>
+              <input type="url" id="input-url" class="form-control" placeholder="https://example.com/news-story" />
+            </div>
+
+            <div class="form-group">
+              <label for="input-title">Headline / Title</label>
+              <input type="text" id="input-title" class="form-control" placeholder="Headline of the story..." />
+            </div>
+
+            <div class="form-group">
+              <label for="input-text">Article Text / Excerpt</label>
+              <textarea id="input-text" class="form-control" placeholder="Paste article body or snippet here..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="btn-analyze" style="width: 100%;">
+              🔍 Analyze Credibility
+            </button>
+          </form>
+        </div>
+
+        <div class="card" id="analysis-result" style="display: none;">
+          <h2 style="margin-bottom: 0.5rem;">📊 Analysis Report</h2>
+          <p style="color: #94a3b8; font-size: 0.9rem;">Automated multi-factor heuristic assessment</p>
+
+          <div class="score-circle-container">
+            <div class="score-circle real" id="result-score-circle">
+              <span class="score-number" id="result-score-number">85</span>
+              <span class="score-unit">Trust Score</span>
+            </div>
+          </div>
+
+          <div class="verdict-banner real" id="result-verdict-banner">
+            ✅ Verdict: CREDIBLE (85/100)
+          </div>
+
+          <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--border-color);">
+            <strong style="color: #93c5fd; font-size: 0.85rem; text-transform: uppercase;">Summary</strong>
+            <p id="result-summary" style="margin-top: 0.3rem; font-size: 0.95rem; line-height: 1.5;"></p>
+          </div>
+
+          <strong style="color: #cbd5e1; font-size: 0.88rem;">Trust Signals Detected</strong>
+          <div class="signals-list" id="result-signals"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: PERSONALIZED FEED -->
+    <section id="tab-feed" class="tab-pane">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2>📰 Personalized News Feed</h2>
+          <p style="color: #94a3b8; font-size: 0.9rem;">Curated real-time headlines scored for authenticity</p>
+        </div>
+      </div>
+
+      <div class="topic-pills">
+        <button class="topic-pill active" data-topic="technology" onclick="loadFeed('technology')">💻 Technology</button>
+        <button class="topic-pill" data-topic="science" onclick="loadFeed('science')">🔬 Science</button>
+        <button class="topic-pill" data-topic="health" onclick="loadFeed('health')">🏥 Health</button>
+        <button class="topic-pill" data-topic="politics" onclick="loadFeed('politics')">🏛️ Politics</button>
+        <button class="topic-pill" data-topic="sports" onclick="loadFeed('sports')">⚽ Sports</button>
+      </div>
+
+      <div class="news-grid" id="feed-container"></div>
+    </section>
+
+    <!-- TAB 3: SEARCH -->
+    <section id="tab-search" class="tab-pane">
+      <div class="card">
+        <h2>🔎 Real-Time News Search</h2>
+        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">
+          Search any news topic or query to view credibility metrics.
+        </p>
+
+        <form id="search-form" style="display: flex; gap: 0.75rem;">
+          <input type="text" id="search-query" class="form-control" placeholder="Search topic (e.g. artificial intelligence, space, climate)..." required />
+          <button type="submit" class="btn btn-primary" style="white-space: nowrap;">Search News</button>
+        </form>
+      </div>
+
+      <div class="news-grid" id="search-results"></div>
+    </section>
+
+    <!-- TAB 4: HISTORY -->
+    <section id="tab-history" class="tab-pane">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <div>
+            <h2>📋 Past Analysis History</h2>
+            <p style="color: #94a3b8; font-size: 0.9rem;">Persisted in Spring Boot H2 relational database</p>
+          </div>
+          <button class="btn btn-danger btn-sm" id="btn-clear-history">Clear All History</button>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Source / Domain</th>
+                <th>Verdict</th>
+                <th>Score</th>
+                <th>Scanned At</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 2rem;">Loading history...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: PROFILE & SETTINGS -->
+    <section id="tab-profile" class="tab-pane">
+      <div class="grid-2">
+        <div class="card">
+          <h2>👤 User Profile & Settings</h2>
+          <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Customize your personalized feed preferences and API credentials.</p>
+
+          <form id="profile-form">
+            <div class="form-group">
+              <label for="profile-name">Display Name</label>
+              <input type="text" id="profile-name" class="form-control" />
+            </div>
+
+            <div class="form-group">
+              <label>Topic Interests</label>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: 0.4rem;">
+                <label style="font-weight: normal; color: #e2e8f0; display:flex; align-items:center; gap: 0.4rem;">
+                  <input type="checkbox" class="interest-checkbox" value="technology" /> Technology
+                </label>
+                <label style="font-weight: normal; color: #e2e8f0; display:flex; align-items:center; gap: 0.4rem;">
+                  <input type="checkbox" class="interest-checkbox" value="science" /> Science
+                </label>
+                <label style="font-weight: normal; color: #e2e8f0; display:flex; align-items:center; gap: 0.4rem;">
+                  <input type="checkbox" class="interest-checkbox" value="health" /> Health
+                </label>
+                <label style="font-weight: normal; color: #e2e8f0; display:flex; align-items:center; gap: 0.4rem;">
+                  <input type="checkbox" class="interest-checkbox" value="politics" /> Politics
+                </label>
+                <label style="font-weight: normal; color: #e2e8f0; display:flex; align-items:center; gap: 0.4rem;">
+                  <input type="checkbox" class="interest-checkbox" value="sports" /> Sports
+                </label>
+                <label style="font-weight: normal; color: #e2e8f0; display:flex; align-items:center; gap: 0.4rem;">
+                  <input type="checkbox" class="interest-checkbox" value="business" /> Business
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="profile-apikey">GNews.io API Key (Free)</label>
+              <input type="text" id="profile-apikey" class="form-control" placeholder="Paste free API key from gnews.io" />
+              <small style="color: #94a3b8; display: block; margin-top: 0.3rem;">
+                Free plan provides 100 requests/day. No credit card required.
+              </small>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              💾 Save Profile
+            </button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>📈 User Statistics</h2>
+          <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Live analytics tracked across your scanning sessions</p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 8px; text-align: center;">
+              <span style="font-size: 2.2rem; font-weight: 800; color: #60a5fa;" id="stat-scanned">0</span>
+              <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 0.3rem;">Total Articles Scanned</p>
+            </div>
+
+            <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 8px; text-align: center;">
+              <span style="font-size: 2.2rem; font-weight: 800; color: #f87171;" id="stat-fake">0</span>
+              <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 0.3rem;">Fake / Questionable Found</p>
+            </div>
+          </div>
+
+          <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 8px; text-align: center;">
+            <span style="font-size: 2.2rem; font-weight: 800; color: #4ade80;" id="stat-rate">100%</span>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 0.3rem;">Content Credibility Rate</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: SYSTEM & ARCHITECTURE -->
+    <section id="tab-system" class="tab-pane">
+      <div class="card">
+        <h2>⚙️ System Architecture & Endpoints</h2>
+        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">
+          TruthLens Java Full Stack (JFS) specification &amp; tools
+        </p>
+
+        <div class="grid-2">
+          <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px;">
+            <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: #93c5fd;">⚡ REST API Endpoints</h3>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.88rem; color: #cbd5e1;">
+              <li><code style="color: #60a5fa;">GET /api/health</code> – System health & Java version</li>
+              <li><code style="color: #60a5fa;">POST /api/analyze</code> – Fake news heuristic scanner</li>
+              <li><code style="color: #60a5fa;">POST /api/batch</code> – Batch article scanner</li>
+              <li><code style="color: #60a5fa;">GET /api/news/feed</code> – Personalized topic headlines</li>
+              <li><code style="color: #60a5fa;">GET /api/news/search</code> – Query search with credibility</li>
+              <li><code style="color: #60a5fa;">GET, POST /api/profile</code> – User profile & stats</li>
+              <li><code style="color: #60a5fa;">GET, DELETE /api/history</code> – Scan history records</li>
+            </ul>
+          </div>
+
+          <div style="background: #0f172a; border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px;">
+            <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: #93c5fd;">💾 H2 Database Console</h3>
+            <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 0.75rem;">
+              Direct SQL access to inspect records, profiles, and statistics in the relational database.
+            </p>
+            <p style="font-size: 0.82rem; color: #94a3b8;">
+              <strong>JDBC URL:</strong> <code>jdbc:h2:file:./data/truthlensdb</code><br/>
+              <strong>User:</strong> <code>sa</code> | <strong>Password:</strong> <em>(empty)</em>
+            </p>
+            <div style="margin-top: 1rem;">
+              <a href="/h2-console" target="_blank" class="btn btn-secondary btn-sm">Open H2 Console ↗</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>TruthLens © 2026 – Java Full Stack (Spring Boot 3 + H2 Database + React Native / Web)</p>
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

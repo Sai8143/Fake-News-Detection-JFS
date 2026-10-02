@@ -1,12 +1,17 @@
 // utils/api.js
 
-// TruthLens Hugging Face Backend
-export const BASE_URL = 'https://saigannesh8143-truthlens-backend.hf.space';
+// TruthLens Spring Boot Backend (Default Port: 8080)
+// • For Web Browser / Local: 'http://localhost:8080'
+// • For Android Emulator: 'http://10.0.2.2:8080'
+// • For Physical Phone (Expo Go): Replace with your PC's LAN IP, e.g. 'http://192.168.1.X:8080'
+// • For HuggingFace / Cloud: 'https://saigannesh8143-truthlens-backend.hf.space'
+export const BASE_URL = 'http://localhost:8080';
 
 export async function analyzeNews({
   url = '',
   title = '',
-  text = ''
+  text = '',
+  uid = 'default'
 }) {
   try {
     const res = await fetch(`${BASE_URL}/api/analyze`, {
@@ -18,6 +23,7 @@ export async function analyzeNews({
         url,
         title,
         text,
+        uid
       }),
     });
 

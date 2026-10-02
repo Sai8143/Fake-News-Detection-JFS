@@ -14,3 +14,22 @@ venv/
 # Build files
 build/
 dist/
+
+# Java & Maven
+target/
+**/target/
+*.class
+*.jar
+*.war
+
+# Database files
+data/
+**/data/
+*.mv.db
+*.trace.db
+
+# IDE & Tooling
+.qodo/
+.idea/
+*.iml
+.vscode/
